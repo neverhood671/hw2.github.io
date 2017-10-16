@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+
+<head>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <label> Time Update:
+    <label name="min"></label>
+  <input type="range" name="range" step="1" id="slider-time" oninput=";">
+  <label name="max"></label>
+  </label>
+  <br>
+  <label> Americas <input type = "checkbox" name = "checkbox" value = "Americas" title = "Americas" > </input></label>
+  <label> Africa <input type = "checkbox" name = "checkbox" value = "Africa" title = "Africa" > </input></label>
+  <label> Asia <input type = "checkbox" name = "checkbox" value = "Asia" title = "Asia"> </input></label>
+  <label> Europe <input type = "checkbox" name = "checkbox" value = "Europe" title = "Europe" > </input></label>
+  <label> Oceania <input type = "checkbox" name = "checkbox" value = "Oceania" title = "Oceania"> </input></label>
+
+  <br>
+  <label> Aggregation: </label>
+  <label> None <input type = "radio" name = "radio" value = "None" checked></input></label>
+  <label> by Continents <input type = "radio" name = "radio" value = "by Continents"></input></label>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="action.js"></script>
+  <script>
+    d3.json("http://localhost:8080/countries_1995_2012.json", function(error, data) {
+
+      var columns = getDesiredCols();
+
+      var table = d3.select("body").append("table"),
+        thead = table.append("thead")
+        .attr("class", "thead");
+      tbody = table.append("tbody");
+
+
+      d3.selectAll("input[name='checkbox']").on("change", filter);
+      filter();
+
+
+      d3.selectAll("input[name='radio']").on("change", aggregate);
+      aggregate();
+
+
+      var range = getMaxAndMinYears(data);
+      selectedYear =  ~~((range[1] + range[0]) / 2);
+      d3.select("input[name='range']")
+        .attr("min", range[0])
+        .attr("max", range[1])
+        .attr("value",selectedYear)
+        .on("change", changeYear);
+      changeYear();
+
+      d3.select("label[name ='min']").text(range[0]);
+      d3.select("label[name ='max']").text(range[1]);
+
+
+
+      table.append("caption")
+        .html("World Countries Ranking");
+
+      thead.append("tr").selectAll("th")
+        .data(columns)
+        .enter()
+        .append("th")
+        .text(function(d) {
+          return d;
+        })
+        .on("click", function(header) {
+          var i = 0;
+          tbody.selectAll("tr").sort(function(a, b) {
+            if (sortFlag <= 0) {
+              i = 1;
+              return d3.ascending(a[header], b[header]);
+            } else {
+              i = -1;
+              return d3.descending(a[header], b[header]);
+            }
+          });
+          sortFlag = i;
+        });
+
+      var dataForCurrrentYear = getInfoForCurrentYear(data, selectedYear);
+      var aggr = getAggregatedByContinentsInfo(dataForCurrrentYear);
+      var rows = tbody.selectAll("tr.row")
+        .data(dataForCurrrentYear.concat(aggr))
+        .enter()
+        .append("tr").attr("class", "row");
+
+      var cells = rows.selectAll("td")
+        .data(function(row) {
+          return d3.range(columns.length).map(function(column, i) {
+            return format(columns[i], row[columns[i]])
+          });
+        })
+        .enter()
+        .append("td")
+        .text(function(d) {
+          return d;
+        })
+        .on("mouseover", function(d, i) {
+
+          d3.select(this.parentNode)
+            .style("background-color", "#F3ED86");
+
+        }).on("mouseout", function() {
+
+          tbody.selectAll("tr")
+            .style("background-color", null)
+            .selectAll("td")
+            .style("background-color", null);
+        });
+
+    });
+  </script>
+</body>
+
+</html>
