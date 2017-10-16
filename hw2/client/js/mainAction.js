@@ -121,3 +121,19 @@ function getInfoForCurrentYear(data, year) {
   }
   return newData;
 }
+
+function getCheckedContinents(){
+  d3.selectAll("input[name='checkbox']").each(function() {
+    var currentContinent = d3.select(this);
+    if (currentContinent.property("checked")) {
+      if (checkedContinents.indexOf(currentContinent.attr("value")) < 0) {
+        checkedContinents.push(currentContinent.attr("value"));
+      }
+    } else {
+      var continentIndex = checkedContinents.indexOf(currentContinent.attr("value"));
+      if (continentIndex > -1) {
+        checkedContinents.splice(continentIndex, 1);
+      }
+    }
+  });
+}
