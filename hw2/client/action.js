@@ -1,3 +1,4 @@
+var initialData = null;
 var desiredCols = ["name", "continent", "gdp", "life_expectancy", "population", "year"];
 var continents = ["Asia", "Africa", "Europe", "Oceania", "Americas"];
 var checkedContinents = [];
@@ -207,7 +208,7 @@ function getInfoForCurrentYear(data, year) {
     }
 
     newData[i] = {
-      alpha2_code : data[i].alpha2_code,
+      alpha2_code: data[i].alpha2_code,
       continent: data[i].continent,
       gdp: !!(data[i].years)[j].gdp ? (data[i].years)[j].gdp : "",
       latitude: data[i].latitude,
@@ -221,11 +222,101 @@ function getInfoForCurrentYear(data, year) {
   return newData;
 }
 
-function changeYear() {
-  selectedYear = d3.select("input[name='range']").property("value");
+function init(data) {
+  initialData = data;
+
+  d3.selectAll("input[name='checkbox']").on("change", filter);
+  d3.selectAll("input[name='radio']").on("change", aggregate);
+
+  var range = getMaxAndMinYears(initialData);
+  selectedYear = ~~((range[1] + range[0]) / 2);
+  d3.select("input[name='range']")
+    .attr("min", range[0])
+    .attr("max", range[1])
+    .attr("value", selectedYear)
+    .on("change", changeYear);
+
+  d3.select("label[name ='min']").text(range[0]);
+  d3.select("label[name ='max']").text(range[1]);
+
+
+  render();
 }
 
-function render(data) {
-  
+function changeYear() {
+  selectedYear = d3.select("input[name='range']").property("value");
+  render();
+}
+
+function render() {
+  d3.select("table").remove();
+
+  var columns = getDesiredCols();
+
+  var table = d3.select("body").append("table"),
+    thead = table.append("thead")
+    .attr("class", "thead");
+  tbody = table.append("tbody");
+
+
+  filter();
+  aggregate();
+
+
+
+  table.append("caption")
+    .html("World Countries Ranking");
+
+  thead.append("tr").selectAll("th")
+    .data(columns)
+    .enter()
+    .append("th")
+    .text(function(d) {
+      return d;
+    })
+    .on("click", function(header) {
+      var i = 0;
+      tbody.selectAll("tr").sort(function(a, b) {
+        if (sortFlag <= 0) {
+          i = 1;
+          return d3.ascending(a[header], b[header]);
+        } else {
+          i = -1;
+          return d3.descending(a[header], b[header]);
+        }
+      });
+      sortFlag = i;
+    });
+
+  var dataForCurrrentYear = getInfoForCurrentYear(initialData, selectedYear);
+  var aggr = getAggregatedByContinentsInfo(dataForCurrrentYear);
+  var rows = tbody.selectAll("tr.row")
+    .data(dataForCurrrentYear.concat(aggr))
+    .enter()
+    .append("tr").attr("class", "row");
+
+  var cells = rows.selectAll("td")
+    .data(function(row) {
+      return d3.range(columns.length).map(function(column, i) {
+        return format(columns[i], row[columns[i]])
+      });
+    })
+    .enter()
+    .append("td")
+    .text(function(d) {
+      return d;
+    })
+    .on("mouseover", function(d, i) {
+
+      d3.select(this.parentNode)
+        .style("background-color", "#F3ED86");
+
+    }).on("mouseout", function() {
+
+      tbody.selectAll("tr")
+        .style("background-color", null)
+        .selectAll("td")
+        .style("background-color", null);
+    });
 
 }
