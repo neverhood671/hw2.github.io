@@ -3,7 +3,8 @@
 <meta charset="utf-8">
 
 <head>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../css/mainStyle.css" />
+  <link rel="stylesheet" href="../css/tableStyle.css" />
 </head>
 
 <body>
@@ -24,11 +25,12 @@
   <label> None <input type = "radio" name = "radio" value = "None" checked></input></label>
   <label> by Continents <input type = "radio" name = "radio" value = "by Continents"></input></label>
   <script src="http://d3js.org/d3.v3.min.js"></script>
-  <script src="action.js"></script>
+  <script src="../js/mainAction.js"></script>
+  <script src="../js/tableAction.js"></script>
   <script>
     d3.json("http://localhost:8080/countries_1995_2012.json", function(error, data) {
 
-    init(data);
+      init(data);
 
     });
   </script>

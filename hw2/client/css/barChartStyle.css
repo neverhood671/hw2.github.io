@@ -1,0 +1,10 @@
+.bar {
+  fill: teal;
+  height: 12px;
+  font-family: Helvetica, sans-serif;
+  fill-opacity: .8;
+}
+
+.label {
+  font-size: 12px;
+}
