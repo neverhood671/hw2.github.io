@@ -1,5 +1,9 @@
 # hw2.github.io
 
+<b>Question 4.1 What does the new attribute years hold?</b>
+<br>contains an array of objects, each of which contains information for a particular year on GDP, 
+<br>population, life expectancy, as well as an array with information on exports to various countries
+
 <b>Question 7.2 Which limitations of static charts can you solve using interactivity?</b>
  <br>Destroy the limitations associated with a person's ability to perceive the world in only three dimensions 
 
